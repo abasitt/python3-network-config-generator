@@ -1,0 +1,10 @@
+!
+int vlan {{ vlanid }}
+  description {{vlanname}}
+  ip address {{ipaddr1}} {{mask}}
+  no shutdown
+  vrrp {{vlanid}}
+  prempt
+  priority {{prty}}
+  address {{vlangw}} {{mask}}
+  

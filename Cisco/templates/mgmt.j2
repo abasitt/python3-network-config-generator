@@ -1,0 +1,8 @@
+! Generate mgmt config
+interface mgmt0
+  vrf member {{obmgmtvrf}}
+  ip address {{obipaddr}} {{obsubnet}}
+!
+vrf context management
+ip route 0.0.0.0 0.0.0.0 {{obgateway}}
+

@@ -1,0 +1,11 @@
+! Generate ospf config
+!
+interface loop10
+  ip address {{routerid}} 255.255.255.255
+no shutdown
+!
+router ospf {{processid}}
+  router-id {{routerid}}
+!
+interface loop10
+  ip router ospf 10 area 0
