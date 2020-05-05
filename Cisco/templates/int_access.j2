@@ -12,7 +12,7 @@ interface {{ inttype }}{{ int_num }}
   {% else -%}
   switchport
   switchport mode access
-  switchport access vlan {{vlan}}
+  switchport access vlan {{vlanid}}
   {% endif -%}
   {% if portch !=None -%}
   channel-group {{ portch }} mode active

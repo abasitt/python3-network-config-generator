@@ -15,6 +15,7 @@ xwb_source_file = "ip_list_v0.xlsx"
 access_template_file = f"{templates_dir}/int_access.j2"
 uplink_template_file = f"{templates_dir}/int_uplink.j2"
 vlan_template_file   = f"{templates_dir}/vlans.j2"
+fhrp_template_file   = f"{templates_dir}/nx_fhrp.j2"
 portch_template_file = f"{templates_dir}/portchannel.j2"
 nxos_template_file   = f"{templates_dir}/nxos.j2"
 ospf_template_file   = f"{templates_dir}/ospf.j2"
@@ -29,6 +30,9 @@ with open(uplink_template_file) as f:
 
 with open(vlan_template_file) as f:
     vlan_template = Template(f.read(), keep_trailing_newline=True)
+
+with open(fhrp_template_file) as f:
+    fhrp_template = Template(f.read(), keep_trailing_newline=True)
 
 with open(portch_template_file) as f:
     portch_template = Template(f.read(), keep_trailing_newline=True)
@@ -61,6 +65,7 @@ ibmad_sw = xsheet_sw['F']
 ibmmk_sw = xsheet_sw['G']
 ibmgw_sw = xsheet_sw['H']
 ibmvf_sw = xsheet_sw['I']
+domnm_sw = xsheet_sw['J']
 
 #extract columns from vlan sheet
 vlnum_vl = xsheet_vl['A']
@@ -69,11 +74,14 @@ vlnet_vl = xsheet_vl['C']
 vlmsk_vl = xsheet_vl['D']
 vlbit_vl = xsheet_vl['E']
 vlgtw_vl = xsheet_vl['F']
-fhrsw_vl = xsheet_vl['G']
-fhrpr_vl = xsheet_vl['H']
+fhsw1_vl = xsheet_vl['G']
+fhpr1_vl = xsheet_vl['H']
 fhad1_vl = xsheet_vl['I']
-fhad2_vl = xsheet_vl['J']
-fhprt_vl = xsheet_vl['K']
+fhsw2_vl = xsheet_vl['J']
+fhpr2_vl = xsheet_vl['K']
+fhad2_vl = xsheet_vl['L']
+fhprt_vl = xsheet_vl['M']
+fhvrf_vl = xsheet_vl['N']
 
 # extract columns from IP_List sheet for endpoint interfaces
 hstnm_ep = xsheet_ip['A']
@@ -132,7 +140,7 @@ def uplink_generate (int_ty, int_no, vln_no, hst_nm, hst_pt, int_pr, prt_ch, int
     uplink_config = uplink_template.render(
         inttype  = int_ty,
         int_num  = int_no,
-        vlan     = vln_no,
+        vlanid   = vln_no,
         hostname = hst_nm,
         link     = hst_pt,
         purpose  = int_pr,
@@ -149,7 +157,7 @@ def portch_generate (pch_id, mlg_id, hst_nm, vln_no, int_rl):
         portchid  = pch_id,
         mlagid    = mlg_id,
         hostname  = hst_nm,
-        vlan      = vln_no,
+        vlanid    = vln_no,
         introle   = int_rl,
     )
     return(portch_config)
@@ -162,6 +170,22 @@ def vlan_generate (vln_no, vln_nm):
         vlanname = vln_nm,
         )
     return(vlan_gen)
+
+#config j2 template as functions for fhrp
+def fhrp_generate (vln_no, vln_nm, fhr_ad, fhr_nt, vln_gw, fhr_pr, fhr_vf, fhr_pt):
+    fhrp_gen= fhrp_template.render(
+        vlanid          = vln_no,
+        vlandescription = vln_nm,
+        fhrpipaddress   = fhr_ad,
+        bitmask         = fhr_nt,
+        fhrpgroup       = vln_no,
+        vlangateway     = vln_gw,
+        fhrppriority    = fhr_pr,
+        interfacevrf    = fhr_vf,
+        fhrpprotocol    = fhr_pt,
+
+        )
+    return(fhrp_gen)
 
 #config j2 template as function for ospf
 def ospf_generate (prc_id, rtr_id):
@@ -181,15 +205,17 @@ def mgmt_generate (obm_vf, obm_ad, obm_mk, obm_gw):
     return(mgmt_config)
 
 # Save the final configuraiton to a file 
-def save_config (swc_nm, acc_cf, upl_cf, vln_cf, pch_cf, ospf, mgt_cf):
+def save_config (swc_nm, dmn_nm, acc_cf, upl_cf, vln_cf, fhr_cf, pch_cf, ospf, mgt_cf):
     save_config = nxos_template.render(
         hostname     = swc_nm,
-        ospf         = ospf,
-        vlan_list    = vln_cf,
-        portchs_list = pch_cf,
+        domainname   = dmn_nm,
+        ospfconfigs  = ospf,
+        vlanconfigs  = vln_cf,
+        fhrpconfigs  = fhr_cf,
+        portchconfigs= pch_cf,
         intf_access  = acc_cf,
         intf_uplink  = upl_cf,
-        mgmt         = mgt_cf,
+        mgmtconfigs  = mgt_cf,
     )
 #open file and save configuration with switch hostname
     with open(f"{outputcfg_dir}/{swc_nm}" + "config.txt", "w") as f:
@@ -197,12 +223,13 @@ def save_config (swc_nm, acc_cf, upl_cf, vln_cf, pch_cf, ospf, mgt_cf):
 
 
 
-#For each switch, generate an interface configuration using the jinja template
+#Main function to generate the configurations for all the templates
 for x in range (1, xsheet_sw.max_row):
     access_configs = ""
     uplink_configs = ""
     portch_configs = ""
     vlanid_configs = ""
+    fhrp_configs   = ""
     ospf_configs   = ""
     mgmt_configs   = ""
 
@@ -243,13 +270,29 @@ for x in range (1, xsheet_sw.max_row):
                 vlnid_ep[y].value, intrl_ep[y].value)
                 portch_configs += portch_config
 
-    #generate vlan configurations        
+    #generate vlan and fhrp configurations        
     for y in range (1, xsheet_vl.max_row):
+        #generate vlan configuration
         if swtch_ep[y].value == hstnm_sw[x].value:
             vlan_config = vlan_generate (vlnum_vl[y].value, vlnam_vl[y].value)
-            
-            # Append vlan configurations together
+
+            #append vlan configurations together
             vlanid_configs += vlan_config
+
+        #generate fhrp configuration
+        if fhsw1_vl[y].value == hstnm_sw[x].value:
+            fhrp_config = fhrp_generate(vlnum_vl[y].value, vlnam_vl[y].value, fhad1_vl[y].value, vlbit_vl[y].value,
+            vlgtw_vl[y].value, fhpr1_vl[y].value, fhvrf_vl[y].value, fhprt_vl[y].value)
+
+            #append fhrp1 configuration
+            fhrp_configs += fhrp_config
+
+        elif fhsw2_vl[y].value == hstnm_sw[x].value:
+            fhrp_config = fhrp_generate(vlnum_vl[y].value, vlnam_vl[y].value, fhad2_vl[y].value, vlbit_vl[y].value,
+            vlgtw_vl[y].value, fhpr2_vl[y].value, fhvrf_vl[y].value, fhprt_vl[y].value)
+
+            #append fhrp2 configuration
+            fhrp_configs += fhrp_config
 
     #generate ospf configurations
     for y in range (1, xsheet_ospf.max_row):
@@ -260,22 +303,7 @@ for x in range (1, xsheet_sw.max_row):
             ospf_configs += ospf_config
 
     #call save_config to save configuration for a switch
-    save_config(hstnm_sw[x].value, access_configs, uplink_configs, portch_configs, vlanid_configs, ospf_configs,
-    mgmt_configs)
+    save_config(hstnm_sw[x].value, domnm_sw[x].value, access_configs, uplink_configs, portch_configs, vlanid_configs,
+    fhrp_configs, ospf_configs, mgmt_configs)
 
-
-#For each switch, generate FHRP configuration using the jinja template
-#for x in range (1,xsheet_sw.max_row):
-#    fhrp_configs1 = ""
-#    fhrp_configs2 = ""
-#    for y in range (1, xsheet_vl.max_row):
-#        if switch_col[y].value == hstnm_col[x].value:
-#            fhrp_config1 = fhrp_generate (vlid_col[y].value, vlname_col[y].value, vl)
-#            # Append this interface configuration to the full configuration
-#            fhrp_configs1 += fhrp_config1
-#            fhrp_config2 = fhrp_generate (vlid_col[y].value, vlname_col[y].value, vl)
-#            # Append this interface configuration to the full configuration
-#            fhrp_configs2 += fhrp_config2
-#    #call save_config to save vlan config per switch
-#    save_config(hstnm_col[x].value,"vlans",vlan_configs)
 

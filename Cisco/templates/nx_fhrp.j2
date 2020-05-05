@@ -1,0 +1,15 @@
+!
+interface vlan {{vlanid}}
+  description {{vlandescription}}
+  {% if interfacevrf != None -%}
+  vrf member {{interfacevrf}}
+  {% else -%}
+  ip address {{fhrpipaddress}}/{{bitmask}}
+  {% endif -%}
+  ip pim sparse-mode
+  no shutdown
+  {{fhrpprotocol}} {{fhrpgroup}}
+    address {{vlangateway}}
+    priority {{fhrppriority}}
+	preempt
+	no shutdown

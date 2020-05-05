@@ -1,7 +1,7 @@
 !
 hostname {{hostname}}
 !
-ip domain-name {{domain_name}}
+ip domain-name {{domainname}}
 !
 feature pim
 !
@@ -34,14 +34,16 @@ ssh key rsa 2048
 !
 no ip domain-lookup
 !
-{{vlan_list}}
+{{vlanconfigs}}
 !
-{{portchs_list}}
+{{fhrpconfigs}}
 !
-{{ospf}}
+{{portchconfigs}}
+!
+{{ospfconfigs}}
 !
 {{intf_access}}
 !
 {{intf_uplink}}
 !
-{{mgmt}}
+{{mgmtconfigs}}

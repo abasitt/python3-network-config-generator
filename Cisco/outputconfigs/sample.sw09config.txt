@@ -1,0 +1,68 @@
+!
+hostname sample.sw09
+!
+ip domain-name test.local
+!
+feature pim
+!
+feature udld
+!
+feature interface-vlan
+!
+feature lacp
+!
+feature ospf
+!
+banner motd ^C
+
+***********************************************************************************
+UNAUTHORIZED ACCESS TO THIS DEVICE IS PROHIBITED
+
+You must have explicit, authorized permission to access or configure this device.
+
+Unauthorized attempts and actions to access or use this system may result in civil
+and/or criminal penalties.
+
+All activities performed on this device are logged and monitored.
+
+***********************************************************************************
+
+Welcome to $(hostname)
+^
+!
+ssh key rsa 2048
+!
+no ip domain-lookup
+!
+
+!
+
+!
+
+!
+! Generate ospf config
+!
+interface loop10
+  ip address 1.1.1.9 255.255.255.255
+no shutdown
+!
+router ospf 10
+  router-id 1.1.1.9
+!
+interface loop10
+  ip router ospf 10 area 0
+
+!
+
+!
+
+!
+! Generate mgmt config
+interface mgmt0
+  vrf member Management
+  ip address 10.10.10.9 255.255.255.0
+!
+vrf context management
+ip route 0.0.0.0 0.0.0.0 10.10.10.254
+
+

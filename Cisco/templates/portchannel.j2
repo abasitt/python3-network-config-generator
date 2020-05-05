@@ -10,7 +10,7 @@ interface port-channel {{portchid}}
   {% else -%}
   switch
   switchport mode access
-  switchport access vlan {{vlan}}
+  switchport access vlan {{vlanid}}
   {% endif -%}
   {% if mlagid !=None -%}
   vpc {{ mlagid }}
