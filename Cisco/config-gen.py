@@ -12,14 +12,14 @@ templates_dir = "./templates"
 outputcfg_dir = "./outputconfigs"
 
 xwb_source_file = "ip_list_v0.xlsx"
-access_template_file = f"{templates_dir}/int_access.j2"
-uplink_template_file = f"{templates_dir}/int_uplink.j2"
-vlan_template_file   = f"{templates_dir}/vlans.j2"
+access_template_file = f"{templates_dir}/nx_int_access.j2"
+uplink_template_file = f"{templates_dir}/nx_int_uplink.j2"
+vlan_template_file   = f"{templates_dir}/nx_vlans.j2"
 fhrp_template_file   = f"{templates_dir}/nx_fhrp.j2"
-portch_template_file = f"{templates_dir}/portchannel.j2"
-nxos_template_file   = f"{templates_dir}/nxos.j2"
-ospf_template_file   = f"{templates_dir}/ospf.j2"
-mgmt_template_file   = f"{templates_dir}/mgmt.j2"
+portch_template_file = f"{templates_dir}/nx_portchannel.j2"
+nxos_template_file   = f"{templates_dir}/nx_base.j2"
+ospf_template_file   = f"{templates_dir}/nx_ospf.j2"
+mgmt_template_file   = f"{templates_dir}/nx_mgmt.j2"
 
 # Open up the Jinja template file (as text) and then create a Jinja Template Object 
 with open(access_template_file) as f:

@@ -1,0 +1,31 @@
+! Generate access port config
+interface {{ inttype }}{{ int_num }}
+  description *Link_to_{{ hostname }}_{{ link }}*
+  {% if introle == 'trunk' -%}
+  switchport
+  switchport mode trunk
+  spanning-tree port type edge trunk
+  {% elif introle == 'routed' and interfacevrf =='None' -%}
+  no switchport
+  ip address {{ipaddr}} {{subnet}}
+  {% elif introle == 'routed' and interfacevrf != 'None' -%}
+  no switchport
+  vrf member {{interfacevrf}}
+  ip address {{ipaddr}} {{subnet}}
+  {% else -%}
+  switchport
+  switchport mode access
+  switchport access vlan {{vlanid}}
+  spanning-tree port type edge
+  {% endif -%}
+  {% if portch !=None -%}
+  channel-group {{ portch }} mode active
+  {% endif -%}
+  {% if igp == 'ospf' -%}
+  ip router ospf {{proccessid}} area {{areaid}}
+  ip ospf passive-interface
+  {% endif -%}
+  {% if mtu == 'None' -%}
+  mtu {{mtusize}}
+  {% endif -%}
+  no shutdown

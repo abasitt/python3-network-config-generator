@@ -1,0 +1,7 @@
+!
+vpc domain {{vpcdomain}}
+  peer-keepalive destination {{vpcdest}} source {{vpcsource}} vrf default
+  role priority {{vpcpriority}}
+  peer-switch
+  peer-gateway
+  ip arp synchronize

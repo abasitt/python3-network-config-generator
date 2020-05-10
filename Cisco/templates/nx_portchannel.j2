@@ -1,0 +1,31 @@
+! Generated Configuration
+interface port-channel {{portchid}}
+  description *Link_to_{{ hostname }}*
+  {% if introle == 'trunk' -%}
+  switch
+  switchport mode trunk
+  spanning-tree port type edge trunk
+  {% elif introle == 'routed' and interfacevrf =='None' -%}
+  no switchport
+  ip address {{ipaddr}} {{subnet}}
+  {% elif introle == 'routed' and interfacevrf != 'None' -%}
+  no switchport
+  vrf member {{interfacevrf}}
+  ip address {{ipaddr}} {{subnet}}
+  {% else -%}
+  switch
+  switchport mode access
+  switchport access vlan {{vlanid}}
+  spanning-tree port type edge
+  {% endif -%}
+  {% if mlagid !=None -%}
+  vpc {{ mlagid }}
+  {% endif -%}
+  {% if igp == 'ospf' -%}
+  ip router ospf {{proccessid}} area {{areaid}}
+  ip ospf passive-interface
+  {% endif -%}
+  {% if mtu == 'None' -%}
+  mtu {{mtusize}}
+  {% endif -%}
+  no shutdown

@@ -3,15 +3,25 @@ hostname sample.sw05
 !
 ip domain-name test.local
 !
+no feature telnet
 feature pim
-!
 feature udld
-!
+feature netflow
 feature interface-vlan
-!
 feature lacp
-!
+feature vrrp
+feature fex
+feature dhcp
 feature ospf
+feature bfd
+feature vtp
+feature vpc
+!
+username  password  role network-admin
+!
+no logging console
+!
+no ip domain-lookup
 !
 banner motd ^C
 
@@ -30,9 +40,17 @@ All activities performed on this device are logged and monitored.
 Welcome to $(hostname)
 ^
 !
-ssh key rsa 2048
+errdisable recovery interval 180
+errdisable recovery cause link-flap
+errdisable recovery cause udld
+errdisable recovery cause bpduguard
+errdisable recovery cause loopback
 !
-no ip domain-lookup
+
+!
+
+!
+
 !
 
 !
@@ -66,3 +84,12 @@ vrf context management
 ip route 0.0.0.0 0.0.0.0 10.10.10.254
 
 
+!
+
+!
+no feature ssh
+ssh key rsa 2048
+feature ssh
+!
+cli alias name wr copy run start
+!
