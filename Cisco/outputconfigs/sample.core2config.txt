@@ -48,15 +48,6 @@ errdisable recovery cause loopback
 !
 
 !
-! Generated Configuration
-interface port-channel 10
-  description *Link_to_server1*
-  switch
-  switchport mode access
-  switchport access vlan 20
-  spanning-tree port type edge
-  vpc 10
-  no shutdown
 
 !
 
