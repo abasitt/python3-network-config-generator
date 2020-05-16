@@ -51,76 +51,85 @@ with open(mgmt_template_file) as f:
 xwb = load_workbook(xwb_source_file, data_only=True)
 xsheet_sw = xwb["switchnames"]
 xsheet_vl = xwb["vlans"]
-xsheet_ip = xwb["IP_list"]
-xsheet_ul = xwb["SW_uplinks"]
+xsheet_ip = xwb["ip_list"]
+xsheet_ul = xwb["sw_uplinks"]
 xsheet_ospf = xwb["ospf"]
 
 #extract columns from switchnames sheet
-hstnm_sw = xsheet_sw['A']
-obmad_sw = xsheet_sw['B']
-obmmk_sw = xsheet_sw['C']
-obmgw_sw = xsheet_sw['D']
-obmvf_sw = xsheet_sw['E']
-ibmad_sw = xsheet_sw['F']
-ibmmk_sw = xsheet_sw['G']
-ibmgw_sw = xsheet_sw['H']
-ibmvf_sw = xsheet_sw['I']
-domnm_sw = xsheet_sw['J']
+hstnm_sw = xsheet_sw['B']
+obmad_sw = xsheet_sw['C']
+obmmk_sw = xsheet_sw['D']
+obmgw_sw = xsheet_sw['E']
+obmvf_sw = xsheet_sw['F']
+ibmad_sw = xsheet_sw['G']
+ibmmk_sw = xsheet_sw['H']
+ibmgw_sw = xsheet_sw['I']
+ibmvf_sw = xsheet_sw['J']
+domnm_sw = xsheet_sw['K']
 
 #extract columns from vlan sheet
-vlnum_vl = xsheet_vl['A']
-vlnam_vl = xsheet_vl['B']
-vlnet_vl = xsheet_vl['C']
-vlmsk_vl = xsheet_vl['D']
-vlbit_vl = xsheet_vl['E']
-vlgtw_vl = xsheet_vl['F']
-fhsw1_vl = xsheet_vl['G']
-fhpr1_vl = xsheet_vl['H']
-fhad1_vl = xsheet_vl['I']
-fhsw2_vl = xsheet_vl['J']
-fhpr2_vl = xsheet_vl['K']
-fhad2_vl = xsheet_vl['L']
-fhprt_vl = xsheet_vl['M']
-fhvrf_vl = xsheet_vl['N']
+vlnum_vl = xsheet_vl['B']
+vlnam_vl = xsheet_vl['C']
+vlnet_vl = xsheet_vl['D']
+vlmsk_vl = xsheet_vl['E']
+vlbit_vl = xsheet_vl['F']
+vlgtw_vl = xsheet_vl['G']
+fhsw1_vl = xsheet_vl['H']
+fhpr1_vl = xsheet_vl['I']
+fhad1_vl = xsheet_vl['J']
+fhsw2_vl = xsheet_vl['K']
+fhpr2_vl = xsheet_vl['L']
+fhad2_vl = xsheet_vl['M']
+fhprt_vl = xsheet_vl['N']
+fhvrf_vl = xsheet_vl['O']
+fhigp_vl = xsheet_vl['P']
+fhmtu_vl = xsheet_vl['Q']
 
 # extract columns from IP_List sheet for endpoint interfaces
-hstnm_ep = xsheet_ip['A']
-hstpt_ep = xsheet_ip['B']
-swtch_ep = xsheet_ip['C']
-intid_ep = xsheet_ip['D']
-intno_ep = xsheet_ip['E']
-vlnid_ep = xsheet_ip['F']
-prpse_ep = xsheet_ip['G']
-prtch_ep = xsheet_ip['H']
-mlgid_ep = xsheet_ip['I']
-intrl_ep = xsheet_ip['J']
-swpad_ep = xsheet_ip['K']
-swpmk_ep = xsheet_ip['L']
+hstnm_ep = xsheet_ip['D']
+hstpt_ep = xsheet_ip['E']
+prpse_ep = xsheet_ip['F']
+swtch_ep = xsheet_ip['G']
+intid_ep = xsheet_ip['H']
+intno_ep = xsheet_ip['I']
+prtch_ep = xsheet_ip['J']
+mlgid_ep = xsheet_ip['K']
+intrl_ep = xsheet_ip['L']
+vlnid_ep = xsheet_ip['M']
+swpad_ep = xsheet_ip['N']
+swpmk_ep = xsheet_ip['O']
+swigp_ep = xsheet_ip['P']
+swmtu_ep = xsheet_ip['Q']
 
 # extract columns from Uplink sheet for switch to switch interfaces
-hstnm_ul = xsheet_ul['A']
-hstpt_ul = xsheet_ul['B']
-swtch_ul = xsheet_ul['C']
-intid_ul = xsheet_ul['D']
-intno_ul = xsheet_ul['E']
-vlnid_ul = xsheet_ul['F']
-prpse_ul = xsheet_ul['G']
-prtch_ul = xsheet_ul['H']
-mlgid_ul = xsheet_ul['I']
-intrl_ul = xsheet_ul['J']
-swpad_ul = xsheet_ul['K']
-swpmk_ul = xsheet_ul['L']
+srcsw_ul = xsheet_ul['B']
+srpid_ul = xsheet_ul['C']
+srpno_ul = xsheet_ul['D']
+prtch_ul = xsheet_ul['E']
+mlgid_ul = xsheet_ul['F']
+intrl_ul = xsheet_ul['G']
+vlnid_ul = xsheet_ul['H']
+swpad_ul = xsheet_ul['I']
+swpmk_ul = xsheet_ul['J']
+spvrf_ul = xsheet_ul['K']
+swigp_ul = xsheet_ul['L']
+swmtu_ul = xsheet_ul['M']
+dstsw_ul = xsheet_ul['N']
+dspid_ul = xsheet_ul['O']
+dspno_ul = xsheet_ul['P']
+
 
 # extract columns from ospf sheet for routing
-swtch_ospf = xsheet_ospf['A']
-loopb_opsf = xsheet_ospf['B']
-rtrid_ospf = xsheet_ospf['C']
-araid_ospf = xsheet_ospf['D']
+swtch_ospf = xsheet_ospf['B']
+loopb_opsf = xsheet_ospf['C']
+rtrid_ospf = xsheet_ospf['D']
 prcid_ospf = xsheet_ospf['E']
-aukey_ospf = xsheet_ospf['F']
+araid_ospf = xsheet_ospf['F']
+aukey_ospf = xsheet_ospf['G']
 
 #config j2 template as functions for access interfaces
-def access_generate (int_ty, int_no, vln_no, hst_nm, hst_pt, int_pr, prt_ch, int_rl, swp_ad, swp_mk):
+def access_generate (int_ty, int_no, vln_no, hst_nm, hst_pt, int_pr, prt_ch, int_rl,
+swp_ad, swp_mk, igp_pt, mtu_pt):
     access_config = access_template.render(
         inttype  = int_ty,
         int_num  = int_no,
@@ -136,18 +145,25 @@ def access_generate (int_ty, int_no, vln_no, hst_nm, hst_pt, int_pr, prt_ch, int
     return(access_config)
 
 #config j2 template as functions for uplink interfaces
-def uplink_generate (int_ty, int_no, vln_no, hst_nm, hst_pt, int_pr, prt_ch, int_rl, swp_ad, swp_mk):
+def uplink_generate (srp_ty, srp_no, prt_ch, int_rl, vln_no, swp_ad, swp_mk, vrf_pt,
+igp_pt, mtu_pt, dsw_nm, dsp_ty, dsp_no):
     uplink_config = uplink_template.render(
-        inttype  = int_ty,
-        int_num  = int_no,
-        vlanid   = vln_no,
-        hostname = hst_nm,
-        link     = hst_pt,
-        purpose  = int_pr,
-        portch   = prt_ch,
-        introle  = int_rl,
-        ipaddr   = swp_ad,
-        subnet   = swp_mk,
+        inttype    = srp_ty,
+        int_num    = srp_no,
+        portch     = prt_ch,
+        introle    = int_rl,
+        vlanid     = vln_no,
+        ipaddr     = swp_ad,
+        subnet     = swp_mk,
+        intfvrf    = vrf_pt,
+        igpprot    = igp_pt,
+        portmtu    = mtu_pt,
+        destsw     = dsw_nm,
+        dinttype   = dsp_ty,
+        dintno     = dsp_no,
+        ospfprocid = prcid_ospf[1].value,
+        ospfareaid = araid_ospf[1].value,
+        ospfautkey = aukey_ospf[1].value,
         )
     return(uplink_config)
 
@@ -172,7 +188,8 @@ def vlan_generate (vln_no, vln_nm):
     return(vlan_gen)
 
 #config j2 template as functions for fhrp
-def fhrp_generate (vln_no, vln_nm, fhr_ad, fhr_nt, vln_gw, fhr_pr, fhr_vf, fhr_pt):
+def fhrp_generate (vln_no, vln_nm, fhr_ad, fhr_nt, vln_gw, fhr_pr, fhr_vf, fhr_pt,
+igp_pt, mtu_pt):
     fhrp_gen= fhrp_template.render(
         vlanid          = vln_no,
         vlandescription = vln_nm,
@@ -183,7 +200,10 @@ def fhrp_generate (vln_no, vln_nm, fhr_ad, fhr_nt, vln_gw, fhr_pr, fhr_vf, fhr_p
         fhrppriority    = fhr_pr,
         interfacevrf    = fhr_vf,
         fhrpprotocol    = fhr_pt,
-
+        fhrpigp         = igp_pt,
+        fhrpmtu         = mtu_pt,
+        ospfprocid      = prcid_ospf[1].value,
+        ospfareaid      = araid_ospf[1].value,
         )
     return(fhrp_gen)
 
@@ -242,7 +262,7 @@ for x in range (1, xsheet_sw.max_row):
             # find the switchname in the call and call access config function for it to connected endpoint
             access_config = access_generate(intid_ep[y].value, intno_ep[y].value, vlnid_ep[y].value,
             hstnm_ep[y].value, hstpt_ep[y].value, prpse_ep[y].value, prtch_ep[y].value, intrl_ep[y].value,
-            swpad_ep[y].value, swpmk_ep[y].value )
+            swpad_ep[y].value, swpmk_ep[y].value, swigp_ep[y].value, swmtu_ep[y].value)
 
             # Append this interface configuration to the full configuration 
             access_configs += access_config
@@ -255,11 +275,11 @@ for x in range (1, xsheet_sw.max_row):
 
     #Loop through Switch uplink sheet
     for y in range (1, xsheet_ul.max_row):
-        if swtch_ul[y].value == hstnm_sw[x].value:
+        if srcsw_ul[y].value == hstnm_sw[x].value:
             # find the switchname in the call and call uplink config function for it to connected endpoint
-            uplink_config = uplink_generate(intid_ul[y].value, intno_ul[y].value, vlnid_ul[y].value,
-            hstnm_ul[y].value, hstpt_ul[y].value, prpse_ul[y].value, prtch_ul[y].value, intrl_ul[y].value,
-            swpad_ul[y].value, swpmk_ul[y].value )
+            uplink_config = uplink_generate(srpid_ul[y].value, srpno_ul[y].value, prtch_ul[y].value,
+            intrl_ul[y].value, vlnid_ul[y].value, swpad_ul[y].value, swpmk_ul[y].value, spvrf_ul[y].value,
+            swigp_ul[y].value, swmtu_ul[y].value, dstsw_ul[y].value, dspid_ul[y].value,dspno_ul[y].value)
 
             # Append this interface configuration to the full configuration 
             uplink_configs += uplink_config
@@ -282,14 +302,14 @@ for x in range (1, xsheet_sw.max_row):
         #generate fhrp configuration
         if fhsw1_vl[y].value == hstnm_sw[x].value:
             fhrp_config = fhrp_generate(vlnum_vl[y].value, vlnam_vl[y].value, fhad1_vl[y].value, vlbit_vl[y].value,
-            vlgtw_vl[y].value, fhpr1_vl[y].value, fhvrf_vl[y].value, fhprt_vl[y].value)
+            vlgtw_vl[y].value, fhpr1_vl[y].value, fhvrf_vl[y].value, fhprt_vl[y].value, fhigp_vl[y].value, fhmtu_vl[y].value)
 
             #append fhrp1 configuration
             fhrp_configs += fhrp_config
 
         elif fhsw2_vl[y].value == hstnm_sw[x].value:
             fhrp_config = fhrp_generate(vlnum_vl[y].value, vlnam_vl[y].value, fhad2_vl[y].value, vlbit_vl[y].value,
-            vlgtw_vl[y].value, fhpr2_vl[y].value, fhvrf_vl[y].value, fhprt_vl[y].value)
+            vlgtw_vl[y].value, fhpr2_vl[y].value, fhvrf_vl[y].value, fhprt_vl[y].value, fhigp_vl[y].value, fhmtu_vl[y].value)
 
             #append fhrp2 configuration
             fhrp_configs += fhrp_config

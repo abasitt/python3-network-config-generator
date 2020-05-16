@@ -5,10 +5,10 @@ interface {{ inttype }}{{ int_num }}
   switchport
   switchport mode trunk
   spanning-tree port type edge trunk
-  {% elif introle == 'routed' and interfacevrf =='None' -%}
+  {% elif introle == 'routed' and interfacevrf == None -%}
   no switchport
   ip address {{ipaddr}} {{subnet}}
-  {% elif introle == 'routed' and interfacevrf != 'None' -%}
+  {% elif introle == 'routed' and interfacevrf != None -%}
   no switchport
   vrf member {{interfacevrf}}
   ip address {{ipaddr}} {{subnet}}
@@ -18,12 +18,12 @@ interface {{ inttype }}{{ int_num }}
   switchport access vlan {{vlanid}}
   spanning-tree port type edge
   {% endif -%}
+  {% if igp == 'ospf' -%}
+  ip router ospf {{ospfprocid}} area {{ospfareaid}}
+  ip ospf passive-interface
+  {% endif -%}
   {% if portch !=None -%}
   channel-group {{ portch }} mode active
-  {% endif -%}
-  {% if igp == 'ospf' -%}
-  ip router ospf {{proccessid}} area {{areaid}}
-  ip ospf passive-interface
   {% endif -%}
   {% if mtu == 'None' -%}
   mtu {{mtusize}}

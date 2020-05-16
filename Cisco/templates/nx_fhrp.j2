@@ -6,7 +6,14 @@ interface vlan {{vlanid}}
   {% else -%}
   ip address {{fhrpipaddress}}/{{bitmask}}
   {% endif -%}
+  {% if fhrpigp == 'ospf' -%}
+  ip router ospf {{ospfprocid}} area {{ospfareaid}}
+  ip ospf passive-interface
+  {% endif -%}
   ip pim sparse-mode
+  {% if fhrpmtu == 'None' -%}
+  mtu {{fhrpmtu}}
+  {% endif -%}
   no shutdown
   {{fhrpprotocol}} {{fhrpgroup}}
     address {{vlangateway}}

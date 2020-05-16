@@ -6,6 +6,7 @@ no shutdown
 !
 router ospf {{processid}}
   router-id {{routerid}}
+  log-adjacency-changes
 !
 interface loop10
   ip router ospf 10 area 0

@@ -1,19 +1,27 @@
 ! Generate uplink config
-interface {{ inttype }}{{ int_num }}
-  description *Link_to_{{ hostname }}*
+interface {{inttype}}{{int_num}}
+  description *Link_to_{{destsw}}_{{dinttype}}{{dintno}}*
   {% if introle == 'trunk' -%}
   switchport
   switchport mode trunk
-  {% elif introle == 'routed' -%}
+  {% elif introle == 'routed' and intfvrf != None -%}
+  no switchport
+  vrf member {{intfvrf}}
+  ip address {{ipaddr}} {{subnet}}
+  {% elif introle == 'routed' and intfvrf == None -%}
   no switchport
   ip address {{ipaddr}} {{subnet}}
-  ip ospf authentication message-digest
-  ip ospf message-digest-key 1 md5 3 
-  ip router ospf 10 area 0
   {% else -%}
   switchport
   switchport mode access
   switchport access vlan {{vlan}}
+  {% endif -%}
+  {% if igpprot == 'ospf' and ospfautkey != None -%}
+  ip router ospf {{ospfprocid}} area {{ospfareaid}}
+  ip ospf authentication message-digest
+  ip ospf message-digest-key 1 md5 3 {{ospfautkey}}
+  {% elif igpprot == 'ospf' and ospfautkey == None -%}
+  ip router ospf {{ospfprocid}} area {{ospfareaid}}
   {% endif -%}
   {% if portch !=None -%}
   channel-group {{ portch }} mode active

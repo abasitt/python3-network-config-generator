@@ -50,10 +50,10 @@ errdisable recovery cause loopback
 !
 ! Generated Configuration
 interface port-channel 10
-  description *Link_to_server1*
+  description *Link_to_Server1*
   switch
   switchport mode access
-  switchport access vlan 20
+  switchport access vlan None
   spanning-tree port type edge
   vpc 10
   no shutdown
@@ -76,8 +76,9 @@ interface loop10
   ip address 1.1.1.2 255.255.255.255
 no shutdown
 !
-router ospf 10
+router ospf 0.0.0.0
   router-id 1.1.1.2
+  log-adjacency-changes
 !
 interface loop10
   ip router ospf 10 area 0
@@ -85,7 +86,7 @@ interface loop10
 !
 ! Generate access port config
 interface ETH1/1
-  description *Link_to_server1_10G2*
+  description *Link_to_Server1_10G2*
   switchport
   switchport mode access
   switchport access vlan 

@@ -64,8 +64,9 @@ interface loop10
   ip address 1.1.1.3 255.255.255.255
 no shutdown
 !
-router ospf 10
+router ospf 0.0.0.0
   router-id 1.1.1.3
+  log-adjacency-changes
 !
 interface loop10
   ip router ospf 10 area 0

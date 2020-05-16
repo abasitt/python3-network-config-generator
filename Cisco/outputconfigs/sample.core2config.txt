@@ -58,8 +58,10 @@ errdisable recovery cause loopback
 !
 !
 interface vlan 10
-  description Cisco
+  description Clients
   vrf member Test
+  ip router ospf 0.0.0.0 area 10
+  ip ospf passive-interface
   ip pim sparse-mode
   no shutdown
   vrrp 10
@@ -70,7 +72,7 @@ interface vlan 10
 !
 interface vlan 20
   description server
-  vrf member Test
+  ip address 10.10.20.252/24
   ip pim sparse-mode
   no shutdown
   vrrp 20
@@ -86,8 +88,9 @@ interface loop10
   ip address 1.1.1.12 255.255.255.255
 no shutdown
 !
-router ospf 10
+router ospf 0.0.0.0
   router-id 1.1.1.12
+  log-adjacency-changes
 !
 interface loop10
   ip router ospf 10 area 0
@@ -97,12 +100,12 @@ interface loop10
 !
 ! Generate uplink config
 interface ETH1/1
-  description *Link_to_sample.sw01*
+  description *Link_to_sample.sw01_ETH1/50*
   no switchport
-  ip address 10.20.1.5 255.255.255.252
+  ip address 10.20.1.6 255.255.255.252
+  ip router ospf 0.0.0.0 area 10
   ip ospf authentication message-digest
-  ip ospf message-digest-key 1 md5 3 
-  ip router ospf 10 area 0
+  ip ospf message-digest-key 1 md5 3 password
   no shutdown
 
 !
