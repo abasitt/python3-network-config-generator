@@ -17,7 +17,6 @@ feature bfd
 feature vtp
 feature vpc
 !
-username  password  role network-admin
 !
 no logging console
 !
@@ -54,22 +53,24 @@ errdisable recovery cause loopback
 !
 
 !
-
-!
-
-!
 ! Generate ospf config
 !
 interface loop10
   ip address 1.1.1.6 255.255.255.255
 no shutdown
 !
-router ospf 0.0.0.0
+router ospf 10
   router-id 1.1.1.6
   log-adjacency-changes
 !
 interface loop10
   ip router ospf 10 area 0
+
+!
+
+!
+
+!
 
 !
 

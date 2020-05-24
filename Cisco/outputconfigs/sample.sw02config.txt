@@ -17,7 +17,6 @@ feature bfd
 feature vtp
 feature vpc
 !
-username  password  role network-admin
 !
 no logging console
 !
@@ -48,24 +47,14 @@ errdisable recovery cause loopback
 !
 
 !
-! Generated Configuration
-interface port-channel 10
-  description *Link_to_Server1*
-  switch
-  switchport mode access
-  switchport access vlan None
-  spanning-tree port type edge
-  vpc 10
-  no shutdown
-
-!
-
-!
-
-!
 !
 vlan 20
   name server
+!
+vlan None
+  name None
+
+!
 
 !
 
@@ -76,7 +65,7 @@ interface loop10
   ip address 1.1.1.2 255.255.255.255
 no shutdown
 !
-router ospf 0.0.0.0
+router ospf 10
   router-id 1.1.1.2
   log-adjacency-changes
 !
@@ -84,8 +73,32 @@ interface loop10
   ip router ospf 10 area 0
 
 !
+
+!
+
+!
+!Generate access portchannel configs
+interface port-channel 10
+  description *Link_to_Server1*
+  switch
+  switchport mode access
+  switchport access vlan None
+  spanning-tree port type edge
+  vpc 10
+  no shutdown
+
+!
 ! Generate access port config
 interface ETH1/1
+  description *Link_to_Server1_10G2*
+  switchport
+  switchport mode access
+  switchport access vlan 
+  spanning-tree port type edge
+  channel-group 10 mode active
+  no shutdown
+! Generate access port config
+interface ETH1/2
   description *Link_to_Server1_10G2*
   switchport
   switchport mode access

@@ -1,6 +1,6 @@
 !
 vpc domain {{vpcdomain}}
-  peer-keepalive destination {{vpcdest}} source {{vpcsource}} vrf default
+  peer-keepalive destination {{keepalivedest}} source {{keepalivesrce}} vrf {{keepalivevrf}}
   role priority {{vpcpriority}}
   peer-switch
   peer-gateway

@@ -14,9 +14,11 @@ outputcfg_dir = "./outputconfigs"
 xwb_source_file = "ip_list_v0.xlsx"
 access_template_file   = f"{templates_dir}/nx_int_access.j2"
 uplink_template_file   = f"{templates_dir}/nx_int_uplink.j2"
+mlag_template_file     = f"{templates_dir}/nx_vpc.j2"
 vlan_template_file     = f"{templates_dir}/nx_vlans.j2"
 fhrp_template_file     = f"{templates_dir}/nx_fhrp.j2"
-portchep_template_file = f"{templates_dir}/nx_portch_access.j2"
+portchep_template_file = f"{templates_dir}/nx_portch_endpoint.j2"
+portchul_template_file = f"{templates_dir}/nx_portch_uplink.j2"
 nxos_template_file     = f"{templates_dir}/nx_base.j2"
 ospf_template_file     = f"{templates_dir}/nx_ospf.j2"
 mgmt_template_file     = f"{templates_dir}/nx_mgmt.j2"
@@ -28,11 +30,17 @@ with open(access_template_file) as f:
 with open(uplink_template_file) as f:
     uplink_template = Template(f.read(), keep_trailing_newline=True)
 
+with open(mlag_template_file) as f:
+    mlag_template = Template(f.read(), keep_trailing_newline=True)
+
 with open(vlan_template_file) as f:
     vlan_template = Template(f.read(), keep_trailing_newline=True)
 
 with open(fhrp_template_file) as f:
     fhrp_template = Template(f.read(), keep_trailing_newline=True)
+
+with open(portchul_template_file) as f:
+    portchul_template = Template(f.read(), keep_trailing_newline=True)
 
 with open(portchep_template_file) as f:
     portchep_template = Template(f.read(), keep_trailing_newline=True)
@@ -66,6 +74,12 @@ ibmmk_sw = xsheet_sw['H']
 ibmgw_sw = xsheet_sw['I']
 ibmvf_sw = xsheet_sw['J']
 domnm_sw = xsheet_sw['K']
+mlgdm_sw = xsheet_sw['L']
+mlgpr_sw = xsheet_sw['M']
+mlgsr_sw = xsheet_sw['N']
+mlgdt_sw = xsheet_sw['O']
+mlgvf_sw = xsheet_sw['P']
+
 
 #extract columns from vlan sheet
 vlnum_vl = xsheet_vl['B']
@@ -123,11 +137,11 @@ dspno_ul = xsheet_ul['P']
 swtch_ospf = xsheet_ospf['B']
 loopb_opsf = xsheet_ospf['C']
 rtrid_ospf = xsheet_ospf['D']
-prcid_ospf = xsheet_ospf['E']
-araid_ospf = xsheet_ospf['F']
+araid_ospf = xsheet_ospf['E']
+prcid_ospf = xsheet_ospf['F']
 aukey_ospf = xsheet_ospf['G']
 
-#config j2 template as functions for access interfaces
+#define j2 template as a function for access interfaces
 def access_generate (int_ty, int_no, vln_no, hst_nm, hst_pt, int_pr, prt_ch, int_rl,
 swp_ad, swp_mk, igp_pt, mtu_pt):
     access_config = access_template.render(
@@ -144,7 +158,7 @@ swp_ad, swp_mk, igp_pt, mtu_pt):
         )
     return(access_config)
 
-#config j2 template as functions for uplink interfaces
+#define j2 template as a function for uplink interfaces
 def uplink_generate (srp_ty, srp_no, prt_ch, int_rl, vln_no, swp_ad, swp_mk, vrf_pt,
 igp_pt, mtu_pt, dsw_nm, dsp_ty, dsp_no):
     uplink_config = uplink_template.render(
@@ -167,19 +181,39 @@ igp_pt, mtu_pt, dsw_nm, dsp_ty, dsp_no):
         )
     return(uplink_config)
 
-#config j2 template as function for endpoint portchannel interfaces
-def portchep_generate (pch_id, mlg_id, hst_nm, vln_no, int_rl):
+#define j2 template as a function for mlag configs
+def mlag_generate (vpc_dm, vpc_pr, kpa_sr, kpa_dt, kpa_vf):
+    vpc_config = mlag_template.render(
+        vpcdomain      = vpc_dm,
+        vpcpriority    = vpc_pr,
+        keepalivesrce  = kpa_sr,
+        keepalivedest  = kpa_dt,
+        keepalivevrf   = kpa_vf,
+    )
+    return(vpc_config)
+
+#define j2 template as a function for endpoint portchannel interfaces
+def portchep_generate (pch_id, mlg_id, vln_no, int_rl, hst_nm):
     portchep_config = portchep_template.render(
         portchid    = pch_id,
         mlagid      = mlg_id,
-        hostname    = hst_nm,
         vlanid      = vln_no,
         introle     = int_rl,
+        hostname    = hst_nm,
     )
     return(portchep_config)
 
+def portchul_generate (pch_id, mlg_id, vln_no, int_rl, dst_sw):
+    portchul_config = portchul_template.render(
+        portchid    = pch_id,
+        mlagid      = mlg_id,
+        vlanid      = vln_no,
+        introle     = int_rl,
+        destsw      = dst_sw,
+    )
+    return(portchul_config)
 
-#config j2 template as functions for vlans
+#define j2 template as a function for vlans
 def vlan_generate (vln_no, vln_nm):
     vlan_gen= vlan_template.render(
         vlanid   = vln_no,
@@ -187,7 +221,7 @@ def vlan_generate (vln_no, vln_nm):
         )
     return(vlan_gen)
 
-#config j2 template as functions for fhrp
+#define j2 template as a function for fhrp
 def fhrp_generate (vln_no, vln_nm, fhr_ad, fhr_nt, vln_gw, fhr_pr, fhr_vf, fhr_pt,
 igp_pt, mtu_pt):
     fhrp_gen= fhrp_template.render(
@@ -207,7 +241,7 @@ igp_pt, mtu_pt):
         )
     return(fhrp_gen)
 
-#config j2 template as function for ospf
+#define j2 template as a function for ospf
 def ospf_generate (prc_id, rtr_id):
     ospf_config = ospf_template.render(
         processid = prc_id,
@@ -215,6 +249,7 @@ def ospf_generate (prc_id, rtr_id):
     )
     return(ospf_config)
 
+#define j2 template as a function for switch management configs
 def mgmt_generate (obm_vf, obm_ad, obm_mk, obm_gw):
     mgmt_config = mgmt_template.render(
         obmgmtvrf = obm_vf,
@@ -224,30 +259,35 @@ def mgmt_generate (obm_vf, obm_ad, obm_mk, obm_gw):
     )
     return(mgmt_config)
 
-# Save the final configuraiton to a file 
-def save_config (swc_nm, dmn_nm, acc_cf, upl_cf, vln_cf, fhr_cf, pch_cf, ospf, mgt_cf):
+#define j2 template as a function to save switches final configs
+def save_config (swc_nm, dmn_nm, acc_cf, pac_cf, upl_cf, pul_cf, mlg_cf, vln_cf, fhr_cf, osp_cf, mgt_cf):
     save_config = nxos_template.render(
-        hostname     = swc_nm,
-        domainname   = dmn_nm,
-        ospfconfigs  = ospf,
-        vlanconfigs  = vln_cf,
-        fhrpconfigs  = fhr_cf,
-        portchconfigs= pch_cf,
-        intf_access  = acc_cf,
-        intf_uplink  = upl_cf,
-        mgmtconfigs  = mgt_cf,
+        hostname       = swc_nm,
+        domainname     = dmn_nm,
+        intf_access    = acc_cf,
+        intf_uplink    = upl_cf,
+        vpcconfigs     = mlg_cf,
+        vlanconfigs    = vln_cf,
+        fhrpconfigs    = fhr_cf,
+        portchaccess   = pac_cf,
+        portchuplink   = pul_cf,
+        ospfconfigs    = osp_cf,
+        mgmtconfigs    = mgt_cf,
     )
-#open file and save configuration with switch hostname
+    #open file and save configuration with switch hostname
     with open(f"{outputcfg_dir}/{swc_nm}" + "config.txt", "w") as f:
         f.write(save_config)
-
 
 
 #Main function to generate the configurations for all the templates
 for x in range (1, xsheet_sw.max_row):
     access_configs   = ""
     uplink_configs   = ""
+    mlag_configs     = ""
     portchep_configs = ""
+    portchul_configs = ""
+    portchep_check   = set() #duplicate check for portchannel
+    portchul_check   = set() #duplicate check for portchannel
     vlanid_configs   = ""
     fhrp_configs     = ""
     ospf_configs     = ""
@@ -255,6 +295,11 @@ for x in range (1, xsheet_sw.max_row):
 
     #generate management configuration of the switch
     mgmt_configs = mgmt_generate (obmvf_sw[x].value, obmad_sw[x].value, obmmk_sw[x].value, obmgw_sw[x].value)
+    
+    #generate vpc/mlag configurations
+    if mlgdm_sw[x].value != None:
+        mlag_configs = mlag_generate(mlgdm_sw[x].value, mlgpr_sw[x].value, mlgsr_sw[x].value, mlgdt_sw[x].value,
+        mlgvf_sw[x].value)
 
     #Loop through IP list sheet 
     for y in range (1, xsheet_ip.max_row):
@@ -264,14 +309,17 @@ for x in range (1, xsheet_sw.max_row):
             hstnm_ep[y].value, hstpt_ep[y].value, prpse_ep[y].value, prtch_ep[y].value, intrl_ep[y].value,
             swpad_ep[y].value, swpmk_ep[y].value, swigp_ep[y].value, swmtu_ep[y].value)
 
-            # Append this interface configuration to the full configuration 
+            # Append interface configurations
             access_configs += access_config
 
             #check if endpoint portchannel is configured, if yes then generate porchannel configurations
-            if prtch_ep[y].value != None:
-                portchep_config = portchep_generate(prtch_ep[y].value, mlgid_ep[y].value, hstnm_ep[y].value,
-                vlnid_ep[y].value, intrl_ep[y].value)
+            if prtch_ep[y].value != None and prtch_ep[y].value not in portchep_check:
+                portchep_config = portchep_generate(prtch_ep[y].value, mlgid_ep[y].value,vlnid_ep[y].value,
+                intrl_ep[y].value, hstnm_ep[y].value)
                 portchep_configs += portchep_config
+                
+                #update set value to avoid duplicate portchannel interfaces
+                portchep_check.add(prtch_ep[y].value)
 
     #Loop through Switch uplink sheet
     for y in range (1, xsheet_ul.max_row):
@@ -281,14 +329,17 @@ for x in range (1, xsheet_sw.max_row):
             intrl_ul[y].value, vlnid_ul[y].value, swpad_ul[y].value, swpmk_ul[y].value, spvrf_ul[y].value,
             swigp_ul[y].value, swmtu_ul[y].value, dstsw_ul[y].value, dspid_ul[y].value,dspno_ul[y].value)
 
-            # Append this interface configuration to the full configuration 
+            # Append interface configuration
             uplink_configs += uplink_config
 
             #check if uplink portchannel is configured, if yes then generate porchannel configurations
-#            if prtch_ul[y].value != None:
-#                portchul_config = portchul_generate(prtch_ep[y].value, mlgid_ep[y].value, hstnm_ep[y].value,
-#                vlnid_ep[y].value, intrl_ep[y].value)
-#                portchepul_configs += portchepul_config
+            if prtch_ul[y].value != None and prtch_ul[y].value not in portchul_check:
+                portchul_config = portchul_generate(prtch_ul[y].value, mlgid_ul[y].value, vlnid_ul[y].value,
+                intrl_ul[y].value, dstsw_ul[y].value)
+                portchul_configs += portchul_config
+
+                #update set value to avoid duplicate portchannel interfaces
+                portchul_check.add(prtch_ul[y].value)
 
     #generate vlan and fhrp configurations        
     for y in range (1, xsheet_vl.max_row):
@@ -323,7 +374,5 @@ for x in range (1, xsheet_sw.max_row):
             ospf_configs += ospf_config
 
     #call save_config to save configuration for a switch
-    save_config(hstnm_sw[x].value, domnm_sw[x].value, access_configs, uplink_configs, portchep_configs, vlanid_configs,
-    fhrp_configs, ospf_configs, mgmt_configs)
-
-
+    save_config(hstnm_sw[x].value, domnm_sw[x].value, access_configs, portchep_configs, uplink_configs, portchul_configs, mlag_configs,
+    vlanid_configs, fhrp_configs, ospf_configs, mgmt_configs)

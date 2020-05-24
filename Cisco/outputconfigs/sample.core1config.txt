@@ -17,7 +17,6 @@ feature bfd
 feature vtp
 feature vpc
 !
-username  password  role network-admin
 !
 no logging console
 !
@@ -46,6 +45,13 @@ errdisable recovery cause udld
 errdisable recovery cause bpduguard
 errdisable recovery cause loopback
 !
+!
+vpc domain 10
+  peer-keepalive destination 10.10.10.12 source 10.10.10.11 vrf Management
+  role priority 4096
+  peer-switch
+  peer-gateway
+  ip arp synchronize
 
 !
 
@@ -54,13 +60,25 @@ errdisable recovery cause loopback
 !
 
 !
+! Generate ospf config
+!
+interface loop10
+  ip address 1.1.1.11 255.255.255.255
+no shutdown
+!
+router ospf 10
+  router-id 1.1.1.11
+  log-adjacency-changes
+!
+interface loop10
+  ip router ospf 10 area 0
 
 !
 !
 interface vlan 10
   description Clients
   vrf member Test
-  ip router ospf 0.0.0.0 area 10
+  ip router ospf 10 area 0.0.0.0
   ip ospf passive-interface
   ip pim sparse-mode
   no shutdown
@@ -82,18 +100,15 @@ interface vlan 20
 	no shutdown
 
 !
-! Generate ospf config
+!Generate uplink portchannel configs
+interface port-channel 1
+  description *Link_to_sample.core2*
+  switchport
+  switchport mode trunk
+  vpc peer-link
+  no shutdown
+
 !
-interface loop10
-  ip address 1.1.1.11 255.255.255.255
-no shutdown
-!
-router ospf 0.0.0.0
-  router-id 1.1.1.11
-  log-adjacency-changes
-!
-interface loop10
-  ip router ospf 10 area 0
 
 !
 
@@ -103,9 +118,25 @@ interface ETH1/1
   description *Link_to_sample.sw01_ETH1/49*
   no switchport
   ip address 10.20.1.2 255.255.255.252
-  ip router ospf 0.0.0.0 area 10
+  ip router ospf 10 area 0.0.0.0
   ip ospf authentication message-digest
   ip ospf message-digest-key 1 md5 3 password
+  no shutdown
+! Generate uplink config
+interface ETH1/49
+  description *Link_to_sample.core2_ETH1/49*
+  switchport
+  switchport mode access
+  switchport access vlan 
+  channel-group 1 mode active
+  no shutdown
+! Generate uplink config
+interface ETH1/50
+  description *Link_to_sample.core2_ETH1/50*
+  switchport
+  switchport mode access
+  switchport access vlan 
+  channel-group 1 mode active
   no shutdown
 
 !

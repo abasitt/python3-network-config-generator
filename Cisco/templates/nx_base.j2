@@ -17,7 +17,6 @@ feature bfd
 feature vtp
 feature vpc
 !
-username {{user}} password {{password}} role network-admin
 !
 no logging console
 !
@@ -54,11 +53,13 @@ errdisable recovery cause loopback
 !
 {{vtpconfigs}}
 !
+{{ospfconfigs}}
+!
 {{fhrpconfigs}}
 !
-{{portchconfigs}}
+{{portchuplink}}
 !
-{{ospfconfigs}}
+{{portchaccess}}
 !
 {{intf_access}}
 !

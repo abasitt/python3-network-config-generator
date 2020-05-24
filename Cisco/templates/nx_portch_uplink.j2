@@ -1,0 +1,33 @@
+!Generate uplink portchannel configs
+interface port-channel {{portchid}}
+  description *Link_to_{{destsw}}*
+  {% if introle == 'trunk' -%}
+  switchport
+  switchport mode trunk
+  {% elif introle == 'peer-link' -%}
+  switchport
+  switchport mode trunk
+  vpc peer-link
+  {% elif introle == 'routed' and interfacevrf =='None' -%}
+  no switchport
+  ip address {{ipaddr}} {{subnet}}
+  {% elif introle == 'routed' and interfacevrf != 'None' -%}
+  no switchport
+  vrf member {{interfacevrf}}
+  ip address {{ipaddr}} {{subnet}}
+  {% else -%}
+  switch
+  switchport mode access
+  switchport access vlan {{vlanid}}
+  {% endif -%}
+  {% if mlagid !=None and introle != 'peer-link'-%}
+  vpc {{ mlagid }}
+  {% endif -%}
+  {% if igp == 'ospf' -%}
+  ip router ospf {{proccessid}} area {{areaid}}
+  ip ospf passive-interface
+  {% endif -%}
+  {% if mtu == 'None' -%}
+  mtu {{mtusize}}
+  {% endif -%}
+  no shutdown
