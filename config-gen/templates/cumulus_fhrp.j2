@@ -28,7 +28,7 @@ net add vxlan vni{{vniid}} mtu {{fhrpmtu}}
 {% endif -%}
 {% elif vnitype == 'l3vni' -%}
 !
-net add vlan {{vlanid}} hwaddress 44:38:39:FF:40:94
+net add vlan {{vlanid}} address-virtual 44:38:39:FF:40:94
 net add vxlan vni{{vniid}} vxlan id {{vniid}}
 net add vxlan vni{{vniid}} bridge access {{vlanid}}
 net add vxlan vni{{vniid}} bridge learning off
