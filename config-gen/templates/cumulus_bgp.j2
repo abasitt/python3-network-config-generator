@@ -1,0 +1,17 @@
+net add loopback lo ip address {{routerid}}/32
+!
+net add bgp autonomous-system {{asnumber}}
+net add bgp router-id {{routerid}}
+net add bgp bestpath as-path multipath-relax
+net add bgp bestpath compare-routerid
+net add bgp neighbor fabric peer-group
+net add bgp neighbor fabric remote-as external
+net add bgp neighbor fabric description Internal Fabric Network
+net add bgp neighbor fabric capability extended-nexthop
+net add bgp ipv4 unicast network {{routerid}}/32
+net add bgp ipv6 unicast neighbor fabric activate
+net add bgp evpn neighbor fabric activate
+!
+{% if evpnvniall == 'yes' -%}
+net add bgp evpn advertise-all-vni
+{% endif -%}

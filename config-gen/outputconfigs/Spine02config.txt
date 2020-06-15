@@ -1,0 +1,44 @@
+!
+net add hostname Spine02
+!
+!
+net add vrf mgmt
+net add interface eth0 ip address 10.10.10.2/24
+net add interface eth0 ip gateway 10.10.10.254
+net add vrf mgmt
+!
+net add loopback lo ip address 2.2.2.2/32
+!
+net add bgp autonomous-system 65001
+net add bgp router-id 2.2.2.2
+net add bgp bestpath as-path multipath-relax
+net add bgp bestpath compare-routerid
+net add bgp neighbor fabric peer-group
+net add bgp neighbor fabric remote-as external
+net add bgp neighbor fabric description Internal Fabric Network
+net add bgp neighbor fabric capability extended-nexthop
+net add bgp ipv4 unicast network 2.2.2.2/32
+net add bgp ipv6 unicast neighbor fabric activate
+net add bgp evpn neighbor fabric activate
+!
+
+!
+net add interface swp1 alias *Link_to_Leaf01_swp4*
+net add interface swp1 ipv6 nd ra-interval 5
+net add bgp neighbor swp1 interface peer-group fabric
+net add interface swp1 mtu 9000
+!
+net add interface swp2 alias *Link_to_Leaf02_swp4*
+net add interface swp2 ipv6 nd ra-interval 5
+net add bgp neighbor swp2 interface peer-group fabric
+net add interface swp2 mtu 9000
+!
+net add interface swp3 alias *Link_to_Leaf03_swp4*
+net add interface swp3 ipv6 nd ra-interval 5
+net add bgp neighbor swp3 interface peer-group fabric
+net add interface swp3 mtu 9000
+!
+net add interface swp4 alias *Link_to_Leaf04_swp4*
+net add interface swp4 ipv6 nd ra-interval 5
+net add bgp neighbor swp4 interface peer-group fabric
+net add interface swp4 mtu 9000

@@ -1,0 +1,22 @@
+!
+net add bond {{portchid}} alias *Link_to_{{destsw}}*
+{% if introle == 'trunk' -%}
+net add bridge bridge ports {{portchid}}
+{% elif introle == 'routed' and interfacevrf =='None' -%}
+net add bond {{portchid}} ip address {{ipaddr}}/{{subnet}}
+{% elif introle == 'routed' and interfacevrf != 'None' -%}
+net add interface {{portchid}} ip address {{ipaddr}}/{{subnet}}
+net add interface {{portchid}} vrf {{interfacevrf}}
+{% elif introle == 'access' -%}
+net add bond {{inttype}}{{int_num}} bridge access {{vlanid}}
+{% endif -%}
+{% if mlagid !=None and introle != 'peer-link'-%}
+net add bond {{portchid}} clag id {{ mlagid }}
+{% endif -%}
+{% if igp == 'ospf' -%}
+net add bond {{portchid}} ospf area {{ospfareaid}}
+net add interface {{portchid}} ospf network point-to-point
+{% endif -%}
+{% if mtu == 'None' -%}
+net add bond {{portchid}} mtu {{mtu}}
+{% endif -%}

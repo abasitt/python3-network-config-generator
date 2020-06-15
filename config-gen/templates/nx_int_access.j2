@@ -22,10 +22,10 @@ interface {{ inttype }}{{ int_num }}
   ip router ospf {{ospfprocid}} area {{ospfareaid}}
   ip ospf passive-interface
   {% endif -%}
-  {% if portch !=None -%}
-  channel-group {{ portch }} mode active
+  {% if portchid !=None -%}
+  channel-group {{portchid}} mode active
   {% endif -%}
   {% if mtu == 'None' -%}
-  mtu {{mtusize}}
+  mtu {{mtu}}
   {% endif -%}
   no shutdown

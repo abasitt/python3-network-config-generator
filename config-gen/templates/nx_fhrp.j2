@@ -1,6 +1,6 @@
 !
 interface vlan {{vlanid}}
-  description {{vlandescription}}
+  description *{{vlandescription}}*
   {% if interfacevrf != None -%}
   vrf member {{interfacevrf}}
   {% else -%}
@@ -11,7 +11,7 @@ interface vlan {{vlanid}}
   ip ospf passive-interface
   {% endif -%}
   ip pim sparse-mode
-  {% if fhrpmtu == 'None' -%}
+  {% if fhrpmtu != None -%}
   mtu {{fhrpmtu}}
   {% endif -%}
   no shutdown

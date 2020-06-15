@@ -1,0 +1,31 @@
+!
+net add interface {{inttype}}{{int_num}} alias *Link_to_{{destsw}}_{{dinttype}}{{dintno}}*
+{% if introle == 'trunk' and portch == 'None' -%}
+net add bridge bridge ports {{inttype}}{{int_num}}
+{% elif introle == 'routed' and interfacevrf == 'None' -%}
+net add interface {{inttype}}{{int_num}} ip address {{ipaddr}}/{{subnet}}
+{% elif introle == 'routed' and interfacevrf != 'None' -%}
+net add interface {{inttype}}{{int_num}} ip address {{ipaddr}}/{{subnet}}
+net add interface {{inttype}}{{int_num}} vrf {{interfacevrf}}
+{% elif introle == 'access' and portch == None -%}
+net add interface {{inttype}}{{int_num}} bridge access {{vlanid}}
+{% elif introle == 'ipv6 linklocal' -%}
+net add interface {{inttype}}{{int_num}} ipv6 nd ra-interval 5
+{% endif -%}
+{% if portchid != None and introle != 'peer-link' -%}
+net add bond {{portchid}} bond slaves {{inttype}}{{int_num}}
+{% endif -%}
+{% if igp == 'ospf' -%}
+net add interface {{inttype}}{{int_num}} ospf area {{ospfareaid}}
+net add interface {{inttype}}{{int_num}} ospf network point-to-point
+{% endif -%}
+{% if bgpuntype == 'bgp-unnum-external' -%}
+net add bgp neighbor {{inttype}}{{int_num}} interface peer-group fabric
+{% elif bgpuntype == 'bgp-unnum-internal' and introle == 'peer-link' -%}
+net add bgp neighbor {{inttype}}{{int_num}} remote-as internal
+net add bgp ipv6 unicast neighbor {{inttype}}{{int_num}} activate
+net add bgp evpn neighbor {{inttype}}{{int_num}} activate
+{% endif -%}
+{% if mtu != 'None' -%}
+net add interface {{inttype}}{{int_num}} mtu {{mtu}}
+{% endif -%}

@@ -1,0 +1,7 @@
+!
+net add vrf {{vrfname}} vrf-table auto
+{% if vrfstaticroute != None and nexthopvrf == None-%}
+net add routing route {{vrfstaticroute}} {{stroutenexthop}} vrf {{vrfname}}
+{% elif vrfstaticroute != None and nexthopvrf != None-%}
+net add routing route {{vrfstaticroute}} {{stroutenexthop}} vrf {{vrfname}} nexthop-vrf {{nexthopvrf}}
+{% endif -%}

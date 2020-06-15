@@ -1,0 +1,28 @@
+!
+net add interface {{inttype}}{{int_num}} alias *Link_to_{{hostname}}_{{ link }}*
+{% if introle == 'trunk' and portchid == None -%}
+net add bridge bridge ports {{inttype}}{{int_num}}
+net add interface {{inttype}}{{int_num}} stp bpduguard
+net add interface {{inttype}}{{int_num}} stp portadminedge
+{% elif introle == 'routed' and interfacevrf == None -%}
+net add interface {{inttype}}{{int_num}} ip address {{ipaddr}}/{{subnet}}
+{% elif introle == 'routed' and interfacevrf != None -%}
+net add interface {{inttype}}{{int_num}} ip address {{ipaddr}}/{{subnet}}
+net add interface {{inttype}}{{int_num}} vrf {{interfacevrf}}
+{% elif introle == 'access' and portchid == None -%}
+net add bridge bridge ports {{inttype}}{{int_num}}
+net add interface {{inttype}}{{int_num}} bridge access {{vlanid}}
+net add interface {{inttype}}{{int_num}} stp bpduguard
+net add interface {{inttype}}{{int_num}} stp portadminedge
+{% endif -%}
+{% if igp == 'ospf' -%}
+net add interface {{inttype}}{{int_num}} ospf area {{ospfareaid}}
+net add ospf passive-interface {{inttype}}{{int_num}}
+{% endif -%}
+{% if portchid !=None -%}
+net add bond {{portchid}} bond slaves {{inttype}}{{int_num}}
+{% endif -%}
+{% if mtu == 'None' -%}
+net add interface {{inttype}}{{int_num}} mtu {{mtu}}
+{% endif -%}
+

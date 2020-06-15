@@ -1,0 +1,40 @@
+!
+{% if fhrpipaddress != None -%}
+net add bridge bridge vid {{vlanid}}
+net add vlan {{vlanid}} ip address {{fhrpipaddress}}/{{bitmask}}
+net add vlan {{vlanid}} ip address-virtual 00:00:5E:00:01:01 {{vlangateway}}/{{bitmask}}
+{% endif -%}
+net add vlan {{vlanid}} alias *{{vlandescription}}*
+{% if interfacevrf != None -%}
+net add vlan {{vlanid}} vrf {{interfacevrf}}
+{% endif -%}
+{% if fhrpigp == 'ospf' -%}
+net add vlan {{vlanid}} ospf area {{ospfareaid}}
+net add ospf passive-interface {{vlanid}}
+{% endif -%}
+{% if fhrpmtu != None -%}
+net add vlan {{vlanid}} mtu {{fhrpmtu}}
+{% endif -%}
+{% if vnitype == 'l2vni' -%}
+!
+net add vxlan vni{{vniid}} vxlan id {{vniid}}
+net add vxlan vni{{vniid}} bridge access {{vlanid}}
+net add vxlan vni{{vniid}} bridge learning off
+net add vxlan vni{{vniid}} vxlan local-tunnelip {{tunnelsrcip}}
+net add vxlan vni{{vniid}} stp bpduguard
+net add vxlan vni{{vniid}} stp portbpdufilter
+{% if fhrpmtu != None -%}
+net add vxlan vni{{vniid}} mtu {{fhrpmtu}}
+{% endif -%}
+{% elif vnitype == 'l3vni' -%}
+!
+net add vlan {{vlanid}} hwaddress 44:38:39:FF:40:94
+net add vxlan vni{{vniid}} vxlan id {{vniid}}
+net add vxlan vni{{vniid}} bridge access {{vlanid}}
+net add vxlan vni{{vniid}} bridge learning off
+net add vxlan vni{{vniid}} vxlan local-tunnelip {{tunnelsrcip}}
+net add bridge bridge ports vni{{vniid}}
+{% if fhrpmtu != None -%}
+net add vxlan vni{{vniid}} mtu {{fhrpmtu}}
+{% endif -%}
+{% endif -%}

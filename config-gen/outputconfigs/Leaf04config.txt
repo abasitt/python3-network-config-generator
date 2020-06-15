@@ -1,0 +1,106 @@
+!
+net add hostname Leaf04
+!
+!
+net add vrf mgmt
+net add interface eth0 ip address 10.10.10.14/24
+net add interface eth0 ip gateway 10.10.10.254
+net add vrf mgmt
+!
+net add loopback lo ip address 1.1.1.4/32
+!
+net add bgp autonomous-system 65034
+net add bgp router-id 1.1.1.4
+net add bgp bestpath as-path multipath-relax
+net add bgp bestpath compare-routerid
+net add bgp neighbor fabric peer-group
+net add bgp neighbor fabric remote-as external
+net add bgp neighbor fabric description Internal Fabric Network
+net add bgp neighbor fabric capability extended-nexthop
+net add bgp ipv4 unicast network 1.1.1.4/32
+net add bgp ipv6 unicast neighbor fabric activate
+net add bgp evpn neighbor fabric activate
+!
+net add bgp evpn advertise-all-vni
+
+!
+net add bridge bridge vid 40
+!
+net add bridge bridge vid 30
+net add vlan 30 ip address 10.10.30.252/24
+net add vlan 30 ip address-virtual 00:00:5E:00:01:01 10.10.30.254/24
+net add vlan 30 alias *Servergroup3*
+net add vlan 30 vrf Tenant01
+net add vlan 30 mtu 9000
+!
+net add vxlan vni100030 vxlan id 100030
+net add vxlan vni100030 bridge access 30
+net add vxlan vni100030 bridge learning off
+net add vxlan vni100030 vxlan local-tunnelip 1.1.1.4
+net add vxlan vni100030 stp bpduguard
+net add vxlan vni100030 stp portbpdufilter
+net add vxlan vni100030 mtu 9000
+!
+net add bridge bridge vid 40
+net add vlan 40 ip address 10.10.40.252/24
+net add vlan 40 ip address-virtual 00:00:5E:00:01:01 10.10.40.254/24
+net add vlan 40 alias *Servergroup4*
+net add vlan 40 vrf Tenant01
+net add vlan 40 mtu 9000
+!
+net add vxlan vni100040 vxlan id 100040
+net add vxlan vni100040 bridge access 40
+net add vxlan vni100040 bridge learning off
+net add vxlan vni100040 vxlan local-tunnelip 1.1.1.4
+net add vxlan vni100040 stp bpduguard
+net add vxlan vni100040 stp portbpdufilter
+net add vxlan vni100040 mtu 9000
+!
+net add vlan 4001 alias *Tenant1l3vni*
+net add vlan 4001 vrf Tenant01
+net add vlan 4001 mtu 9000
+!
+net add vlan 4001 hwaddress 44:38:39:FF:40:94
+net add vxlan vni104001 vxlan id 104001
+net add vxlan vni104001 bridge access 4001
+net add vxlan vni104001 bridge learning off
+net add vxlan vni104001 vxlan local-tunnelip 1.1.1.4
+net add bridge bridge ports vni104001
+net add vxlan vni104001 mtu 9000
+!
+net add vrf Tenant01 vrf-table auto
+net add routing route  0.0.0.0/0 10.1.1.1 vrf Tenant01
+!
+net add clag peer sys-mac 44:38:39:FF:01:01 interface swp1-2 secondary backup-ip 10.10.10.13
+!
+net add loopback lo clag vxlan-anycast-ip 10.10.11.12
+!
+net add interface swp6 alias *Link_to_Servergroup4_10G1*
+net add bridge bridge ports swp6
+net add interface swp6 bridge access 40
+net add interface swp6 stp bpduguard
+net add interface swp6 stp portadminedge
+!
+net add interface swp3 alias *Link_to_Spine1_swp4*
+net add interface swp3 ipv6 nd ra-interval 5
+net add bgp neighbor swp3 interface peer-group fabric
+net add interface swp3 mtu 9000
+!
+net add interface swp4 alias *Link_to_Spine2_swp4*
+net add interface swp4 ipv6 nd ra-interval 5
+net add bgp neighbor swp4 interface peer-group fabric
+net add interface swp4 mtu 9000
+!
+net add interface swp1 alias *Link_to_Leaf03_swp1*
+net add interface swp1 mtu 9000
+!
+net add interface swp2 alias *Link_to_Leaf03_swp2*
+net add interface swp2 mtu 9000
+!
+net add interface peerlink.4094 alias *Link_to_Leaf03_peerlink.4094*
+net add bgp neighbor peerlink.4094 remote-as internal
+net add bgp ipv6 unicast neighbor peerlink.4094 activate
+net add bgp evpn neighbor peerlink.4094 activate
+net add interface peerlink.4094 mtu 9000
+!
+net add bond peerlink alias *Link_to_Leaf03*

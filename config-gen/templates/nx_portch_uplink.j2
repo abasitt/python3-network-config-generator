@@ -23,11 +23,14 @@ interface port-channel {{portchid}}
   {% if mlagid !=None and introle != 'peer-link'-%}
   vpc {{ mlagid }}
   {% endif -%}
-  {% if igp == 'ospf' -%}
-  ip router ospf {{proccessid}} area {{areaid}}
-  ip ospf passive-interface
+  {% if igpprot == 'ospf' and ospfautkey != None -%}
+  ip router ospf {{ospfprocid}} area {{ospfareaid}}
+  ip ospf authentication message-digest
+  ip ospf message-digest-key 1 md5 3 {{ospfautkey}}
+  {% elif igpprot == 'ospf' and ospfautkey == None -%}
+  ip router ospf {{ospfprocid}} area {{ospfareaid}}
   {% endif -%}
   {% if mtu == 'None' -%}
-  mtu {{mtusize}}
+  mtu {{mtu}}
   {% endif -%}
   no shutdown

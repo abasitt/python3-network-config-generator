@@ -26,6 +26,6 @@ interface port-channel {{portchid}}
   ip ospf passive-interface
   {% endif -%}
   {% if mtu == 'None' -%}
-  mtu {{mtusize}}
+  mtu {{mtu}}
   {% endif -%}
   no shutdown

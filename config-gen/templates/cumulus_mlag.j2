@@ -1,0 +1,6 @@
+!
+net add clag peer sys-mac 44:38:39:FF:01:01 interface {{peerintfs}} {{mlagpriority}} backup-ip {{backupip}}
+!
+{% if mlaganycast != None -%}
+net add loopback lo clag vxlan-anycast-ip {{mlaganycast}}
+{% endif -%}

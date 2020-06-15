@@ -1,4 +1,4 @@
-! Generate uplink config
+!
 interface {{inttype}}{{int_num}}
   description *Link_to_{{destsw}}_{{dinttype}}{{dintno}}*
   {% if introle == 'trunk' -%}
@@ -14,7 +14,7 @@ interface {{inttype}}{{int_num}}
   {% else -%}
   switchport
   switchport mode access
-  switchport access vlan {{vlan}}
+  switchport access vlan {{vlanid}}
   {% endif -%}
   {% if igpprot == 'ospf' and ospfautkey != None -%}
   ip router ospf {{ospfprocid}} area {{ospfareaid}}
@@ -23,7 +23,10 @@ interface {{inttype}}{{int_num}}
   {% elif igpprot == 'ospf' and ospfautkey == None -%}
   ip router ospf {{ospfprocid}} area {{ospfareaid}}
   {% endif -%}
-  {% if portch !=None -%}
-  channel-group {{ portch }} mode active
+  {% if portchid !=None -%}
+  channel-group {{portchid}} mode active
+  {% endif -%}
+  {% if mtu == 'None' -%}
+  mtu {{mtu}}
   {% endif -%}
   no shutdown
